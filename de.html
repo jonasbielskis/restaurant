@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>title</title>
+      <style>
+          html{
+              scroll-behavior: smooth;
+          }
+
+          body{
+              background-image: url(imgs/bg1.jpg);
+              width: 98%;
+              height: 100%;
+              margin: 0;
+          }
+
+          button{
+              border: solid 1px;
+              margin-left: 10px;
+              margin-bottom: 10px;
+              border-radius: 10px;
+              color: white;
+              background-color: grey;
+              font-size: 15px;
+          }
+
+          .navigation {
+              position: fixed;
+              background-color: #333;
+              width: 100%;
+              z-index: 50;
+          }
+
+          .navigation a {
+              padding-top: 0;
+              padding: 0 7% 0 7%;
+              float: left;
+              color: #f2f2f2;
+              text-align: center;
+              text-decoration: none;
+              font-size: 25px;
+              text-align: center;
+          }
+          .data_name{
+              margin-left: 5px;
+          }
+
+          .navigation a:hover {
+              background-color: #ddd;
+              color: black;
+          }
+
+          .navigaiton a.active {
+              background-color: #4CAF50;
+              color: white;
+          }
+
+          .productlist img{
+              display: block;
+              max-width: 100%;
+              height: auto;
+              border-radius: 20px 20px 0 0;
+          }
+          .productlist>section{
+              padding-top:100px;
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+              margin-bottom: 60px;
+          }
+          .productlist>section>h1{
+              grid-column: 1/-1;
+          }
+          .containsAlcohol{
+              margin-left: 5px;
+          }
+          .product{
+              background-color: #ede6e6;
+              margin: 20px;
+              position: relative;
+              display: flex;
+              flex-direction: column;
+              border: solid 1px;
+              border-radius: 20px;
+
+          }
+          .soldOut:after{
+              position: absolute;
+              box-sizing: border-box;
+              top: 0;
+              left: 0;
+              padding: 1rem;
+              text-align: center;
+              content: "Sold Out";
+              background-color: red;
+              border-radius: 20px 0 20px 0;
+              color:white;
+          }
+           .vegetarian:after{
+              position:absolute;
+              box-sizing: border-box;
+              top: 0;
+              right: 0;
+              padding: 1rem;
+              text-align: center;
+              content: "Vegetarian";
+              background-color: green;
+              border-radius: 0 20px 0 20px;
+               color: white;
+          }
+          .data_price{
+              margin-left: 5px;
+          }
+          .onSale .data_price{
+              text-decoration: line-through;
+          }
+          .onSale .data_discount{
+              font-size: 1.2rem;
+              color: green;
+          }
+          .data_discount{
+              margin-left: 5px;
+              background-color: green;
+              width: 2vw;
+              align-content: center;
+              color: white;
+          }
+          .containsAlcohol{
+              content: "Contains Alcohol";
+          }
+      </style>
+    </head>
+    <body>
+        <div class="navigation">
+            <a class="active" href="#starter">Starter</a>
+            <a href="#main">Main</a>
+            <a href="#dessert">Desserts</a>
+            <a href="#drinks">Drinks</a>
+            <a href="#sideorders">Side Orders</a>
+        </div>
+
+
+        <header id="header">
+            <nav>
+                <a href="#">RESTAURANT</a>
+            </nav>
+        </header>
+
+        <main class="productlist">
+            <template>
+                <article class="product soldOut vegetarian">
+                    <img class="data_img" src="" alt="">
+                    <section class="productbody">
+                        <h3 class="data_name">Baltisk Bonde Suppe</h3>
+                        <h4 class="data_price">49,-</h4>
+                        <h4 class="data_discount">34</h4>
+                        <h4 class="containsAlcohol"></h4>
+                        <button class="button description">See details</button>
+                    </section>
+                </article>
+            </template>
+        </main>
+    </body>
+    <script>
+
+
+
+         fetch("https://kea-alt-del.dk/t5/api/categories")
+            .then(res=>res.json())
+            .then(function(data){
+             data.forEach(buildCategory)
+             getProducts();
+         })
+        function buildCategory(data){
+            const section = document.createElement("section");
+            const header = document.createElement("h1")
+            header.textContent = data;
+            section.setAttribute("id", data)
+            section.appendChild(header);
+            document.querySelector("main").appendChild(section);
+        }
+        /*
+        const link = document.createElement("a");
+        link.href="#"+data;
+        link.textContent=data;
+        document.querySelector("nav").appendChild(link)
+        */
+
+        function getProducts(){
+            fetch("https://kea-alt-del.dk/t5/api/productlist")
+            .then(function(response){
+                return response.json()
+            }).then(function(data){
+                data.forEach(showDish)
+            })
+        }
+
+          function showDish(dish){
+            console.log(`I am a ${dish.category} and I need to go to #${dish.category}`)
+            const template = document.querySelector("template").content;
+            const copy = template.cloneNode(true);
+                          copy.querySelector(".data_img").src = "imgs/small/" + dish.image + "-sm.jpg";
+
+            copy.querySelector(".data_name").textContent=dish.name;
+            copy.querySelector(".data_price").textContent=dish.price;
+            if(dish.discount){
+              copy.querySelector(".data_discount").textContent = Math.round(dish.price - dish.discount / 100 * dish.price)
+
+		} else {
+			copy.querySelector(".data_discount").remove();
+		}
+
+            if(dish.soldout){
+
+            }else{
+               copy.querySelector("article").classList.remove("soldOut");
+            }
+
+              if(dish.vegetarian){
+
+            }else{
+                copy.querySelector("article").classList.remove("vegetarian");
+            }
+             //////DOESNT WORK.... NO IDEA WHY //////////////////////////////////////
+             if(dish.alcohol = 0){
+
+             } else{
+                 copy.querySelector("article").classList.add("containsAlcohol");
+             }
+       ///////////////////////////////////////////////////////////////////////////////
+
+           copy.querySelector("button").addEventListener("click", () => {
+               fetch(`https://kea-alt-del.dk/t5/api/product?id=${dish.id}`)
+               .then(res => res.json())
+               .then(showDetails)
+           })
+
+
+
+            document.querySelector(`#${dish.category}`).appendChild(copy);
+        }
+
+         const details = document.classList.add(".description");
+
+        function showDetails(data){
+            console.log(data)
+            details.querySelector(".description").textContent = data.shortDescription;
+        }
+
+    </script>
+</html>
